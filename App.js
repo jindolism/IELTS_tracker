@@ -1,21 +1,22 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button } from 'react-native-elements';
+import { createStackNavigator, createAppContainer } from 'react-navigation'; // Version can be specified in package.json
+import selectTestTypeScreen  from './src/selectTestTypeScreen';
+import generalTypeScreen from './src/generalTypeScreen';
+import academicTypeScreen from './src/academicTypeScreen';
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-      </View>
-    );
-  }
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+//navigation routes
+const routes = createStackNavigator(
+  {
+    selectTestType: { screen : selectTestTypeScreen },
+    generalType: { screen : generalTypeScreen },
+    academicType: { screen :academicTypeScreen }
   },
-});
+  {
+    initialRouteName: 'selectTestType',
+  }
+);
+
+const App = createAppContainer(routes);
+
+export default App ;
