@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Platform } from 'react-native';
+import GlobalVal from '../assets/global';
 
 
 //select Test type screen - default
@@ -11,24 +12,29 @@ export default class Timer extends Component {
     this.state = {
       isRunning : false,
       isTimeout : false,
-      elapsedTime : 60,
-      timeInterval: null
+      elapsedTime : GlobalVal.DEFAULT_SEC,
+      timeInterval: null,
+      timeText : "",
     }
   };
+  componentDidMount() {
+    this._initTimer();
+    this._displayTime();
+  }
 
-/**
- *  This is tear down function to reset interval timer whenever user leave this view.
- *  To prevent useless interval running or Error, timer is reset regardless of users inquiry
- **/
+  /**
+   *  This is tear down function to reset interval timer whenever user leave this view.
+   *  To prevent useless interval running or Error, timer is reset regardless of users inquiry
+   **/
   componentWillUnmount() {
     this._stopTimer();
   }
 
    render () {
-     const { isRunning, isTimeout, elapsedTime } = this.state;
+     const { isRunning, isTimeout, elapsedTime, displayTime } = this.state;
     return (
       <View>
-        <Text style = { styles.timerText }>{elapsedTime} </Text>
+        <Text style = { styles.timerText }>{displayTime} </Text>
         <View style = { styles.buttonRow }>
           <Button
            icon = {
@@ -53,17 +59,22 @@ export default class Timer extends Component {
    *   Upeate state time value to 60 (Temporal) will make Constant variable table and add
    **/
   _initTimer = () => {
-    const { elapsedTime } = this.state;
+    const { elapsedTime, isTimeout, isRunning } = this.state;
     console.log("Function Call : _initTimer()");
+    // this._stopTimer();
     this.setState(prevState => {
       const newState = {
         ...prevState,
-        elapsedTime : 60,
         //TODO : Do we need to stop if user tap Reset(?)
-        // isRunning  : false
+        // isRunning  : false,
+        elapsedTime : GlobalVal.DEFAULT_SEC ,
+        isTimeout : false,
+        displayTime : this._timeConverter(GlobalVal.TEST_TIME),
       }
       return { ...newState };
     });
+    console.log("******* initTime call displayTime? after update state?");
+    console.log("*** Current state value : elapsedTime - " + elapsedTime);
   };
 
   /**
@@ -75,26 +86,18 @@ export default class Timer extends Component {
     console.log(" - default Value - isRunning : " + isRunning + " isTimeout : " + isTimeout);
 
     //block to play multiple timeInterval
-    if(isRunning) {
+    if(isRunning || timeInterval != nul) {
         console.log("_runningTimer : Already running");
-    }
-    //TODO PART2 : will remove whenever finish overtime Function
-    if(isTimeout) {
-      clearInterval(timeInterval);
-    }
-
-    if(timeInterval != null){
-      console.log("Timer is already running!")
-      return;
+        return;
     }
 
     console.log("_runningTimer : start interval");
     const startInterval = setInterval(() => {
         if(!isRunning){
-        this._updateTime();
+          this._updateTime();
       }
     }, 1000);
-     return this.setState({
+    return this.setState({
        timeInterval : startInterval,
        isRunning : true
     })
@@ -107,49 +110,69 @@ export default class Timer extends Component {
   _updateTime = () => {
     const {elapsedTime, isTimeout , isRunning } = this.state;
     console.log("#Function Call : _updateTime ");
-    if(elapsedTime <= 0) {
+    console.log(" --- current elapsedTime : " + elapsedTime);
+    if(elapsedTime == 0) {
       console.log("updateTime : elapsedTime is under 0");
       this.setState(prevState => {
         const newState = {
           ...prevState,
           isTimeout : true,
-          isRunning : false
+          elapsedTime : elapsedTime + 1
         }
-        //TODO PART2 : This is temporal call for stop Timmer.
-        //This function will be replaced by increase time in Red font
-        this._stopTimer();
         return { ...newState };
       });
     } else {
-      this.setState(prevState => {
-        console.log("updateTime : elapsedTime deduct");
-        const newState = {
-          ...prevState,
-          elapsedTime : elapsedTime - 1
+        if(isTimeout && elapsedTime >= GlobalVal.TIMEOUT) {
+          return  this._stopTimer();
         }
-        console.log("updateTime is : " + newState.elapsedTime);
-        return { ...newState };
-      });
-    }
-
+        this.setState(prevState => {
+          console.log("updateTime : elapsedTime deduct");
+          const newState = {
+            ...prevState,
+            elapsedTime : isTimeout ? elapsedTime + 1 : elapsedTime - 1,
+          }
+          console.log("updateTime is : " + newState.elapsedTime);
+          return { ...newState };
+        });
+      }
+      this._displayTime();
   }
 
   _stopTimer = () => {
-    const {isTimeout, isRunning, timeInterval } = this.state;
-    console.log("###start _stopTimer function");
-    console.log (" isRunning : " + this.isRunning);
+    const {isTimeout, isRunning, timeInterval , timeText} = this.state;
+    console.log("#Function Call :  _stopTimer");
+    console.log (" isRunning : " + isRunning);
     clearInterval(this.state.timeInterval);
      this.setState(prevState => {
       const newState = {
         ...prevState,
         isRunning : false,
-        timeInterval : null
+        timeInterval : null,
       }
       return { ...newState };
     });
+    return;
+  }
+
+  _displayTime = () =>{
+    const { elapsedTime, displayTime } = this.state;
+    console.log ("#Function Call : _displayTime");
+    console.log("DisplayTime : elasedTime - " + elapsedTime);
+    return this.setState({
+      displayTime : this._timeConverter(elapsedTime)
+   });
+    console.log("displayTime : " + this.displayTime);
+  }
+
+  _timeConverter (time) {
+    return this._digitUpdate(Math.floor(time/GlobalVal.BASE_TIME)) + ":" + this._digitUpdate(Math.ceil (time % GlobalVal.BASE_TIME));
+  }
+
+  _digitUpdate(num) {
+    if(num > 9) return num;
+    return '0'+ num;
   }
 }
-
 //Style sheet
 const styles = StyleSheet.create({
     buttonRow: {
@@ -161,7 +184,9 @@ const styles = StyleSheet.create({
 
     timerText: {
       color : '#D3A4B3',
-      fontSize: 200,
+      //TODO: This is iOS font, i need to add Android edition
+      fontFamily : 'Courier',
+      fontSize: 150,
       flex : 2,
       alignItems:'center',
       justifyContent : 'center'
