@@ -1,19 +1,15 @@
 import React from 'react';
 import { Button } from 'react-native-elements';
 import { createStackNavigator, createAppContainer } from 'react-navigation'; // Version can be specified in package.json
-import selectTestTypeScreen  from './src/selectTestTypeScreen';
-import generalTypeScreen from './src/generalTypeScreen';
-import academicTypeScreen from './src/academicTypeScreen';
+import generalTypeScreen from './src/generalTypeScreen'; 
 
 //navigation routes
 const routes = createStackNavigator(
-  {
-    selectTestType: { screen : selectTestTypeScreen },
-    generalType: { screen : generalTypeScreen },
-    academicType: { screen :academicTypeScreen }
+  { 
+    generalType: { screen : generalTypeScreen } 
   },
   {
-    initialRouteName: 'selectTestType',
+    initialRouteName: 'generalType',
   }
 );
 
