@@ -12,7 +12,7 @@ export default class Timer extends Component {
     this.state = {
       isRunning : false,
       isTimeout : false,
-      elapsedTime : GlobalVal.DEFAULT_SEC,
+      elapsedTime : GlobalVal.TEST_TIME, //TODO: GlobalVal.DEFAULT_SEC,
       timeInterval: null,
       timeText : "",
     }
@@ -41,13 +41,13 @@ export default class Timer extends Component {
              <Icon name = {isRunning ? 'pause' : 'play'}
               size={40}
               color={ isTimeout ? "red" : "black" } /> }
-             type="outline"
-            onPress = { isRunning ? this._stopTimer : this._runningTimer }
+           type="outline"
+           onPress = { isRunning ? this._stopTimer : this._runningTimer }
           />
           <Button
-          icon = {<Icon name = 'history' size={40} color="black"/> }
+           icon = { <Icon name = 'history' size={40} color="black"/> }
             type  = "outline"
-            onPress = {this._initTimer }
+            onPress = { this._initTimer }
           />
         </View>
       </View>
@@ -67,9 +67,9 @@ export default class Timer extends Component {
         ...prevState,
         //TODO : Do we need to stop if user tap Reset(?)
         // isRunning  : false,
-        elapsedTime : GlobalVal.DEFAULT_SEC ,
+        elapsedTime : GlobalVal.TEST_TIME, //TODO: GlobalVal.DEFAULT_SEC ,
         isTimeout : false,
-        displayTime : this._timeConverter(GlobalVal.TEST_TIME),
+        displayTime : this._timeConverter(GlobalVal.TEST_TIME), // TODO: this._timeConverter(GlobalVal.DEFAULT_SEC)
       }
       return { ...newState };
     });
@@ -86,7 +86,7 @@ export default class Timer extends Component {
     console.log(" - default Value - isRunning : " + isRunning + " isTimeout : " + isTimeout);
 
     //block to play multiple timeInterval
-    if(isRunning || timeInterval != nul) {
+    if(isRunning || timeInterval != null) {
         console.log("_runningTimer : Already running");
         return;
     }
@@ -122,7 +122,7 @@ export default class Timer extends Component {
         return { ...newState };
       });
     } else {
-        if(isTimeout && elapsedTime >= GlobalVal.TIMEOUT) {
+        if(isTimeout && elapsedTime >= GlobalVal.TEST_TIME /* TODO: GlobalVal.TIMEOUT */) {
           return  this._stopTimer();
         }
         this.setState(prevState => {

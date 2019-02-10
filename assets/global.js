@@ -1,6 +1,6 @@
 module.exports = Object.freeze({
   BASE_TIME : 60,
   DEFAULT_SEC : 3600,
-  TIMEOUT : 20,
+  TIMEOUT : 3600,
   TEST_TIME : 15,
 });
