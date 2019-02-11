@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     timerText: {
       color : '#D3A4B3',
       //TODO: This is iOS font, i need to add Android edition
-      fontFamily : 'Courier',
+      fontFamily : 'monospace',
       fontSize: 150,
       flex : 2,
       alignItems:'center',
