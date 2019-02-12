@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { View, StyleSheet, Text, Platform } from 'react-native';
+import { View, StyleSheet, Text, Platform, Alert } from 'react-native';
 import GlobalVal from '../assets/global';
 
 
@@ -15,6 +15,7 @@ export default class Timer extends Component {
       elapsedTime : GlobalVal.TEST_TIME, //TODO: GlobalVal.DEFAULT_SEC,
       timeInterval: null,
       timeText : "",
+      saveButton : true
     }
   };
   componentDidMount() {
@@ -30,8 +31,25 @@ export default class Timer extends Component {
     this._stopTimer();
   }
 
+
+   buttonClickded = () => {
+    Alert.alert(
+      "Save",
+      "Are you sure to save?",
+      [ 
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "Save", onPress: () => console.log("OK Pressed") }
+      ],
+      { cancelable: false }
+    );
+  };
+
    render () {
-     const { isRunning, isTimeout, elapsedTime, displayTime } = this.state;
+     const { isRunning, isTimeout, elapsedTime, displayTime, saveButton } = this.state;
     return (
       <View>
         <Text style = { styles.timerText }>{displayTime} </Text>
@@ -49,6 +67,12 @@ export default class Timer extends Component {
             type  = "outline"
             onPress = { this._initTimer }
           />
+           <Button
+           icon = { <Icon name = 'save' size={40} color="black"/> }
+            type  = "outline" 
+            disabled = { saveButton }
+            onPress={this.buttonClickded}
+          />
         </View>
       </View>
     )
@@ -59,7 +83,7 @@ export default class Timer extends Component {
    *   Upeate state time value to 60 (Temporal) will make Constant variable table and add
    **/
   _initTimer = () => {
-    const { elapsedTime, isTimeout, isRunning } = this.state;
+    const { elapsedTime, isTimeout, isRunning, saveButton } = this.state;
     console.log("Function Call : _initTimer()");
     // this._stopTimer();
     this.setState(prevState => {
@@ -70,6 +94,7 @@ export default class Timer extends Component {
         elapsedTime : GlobalVal.TEST_TIME, //TODO: GlobalVal.DEFAULT_SEC ,
         isTimeout : false,
         displayTime : this._timeConverter(GlobalVal.TEST_TIME), // TODO: this._timeConverter(GlobalVal.DEFAULT_SEC)
+        saveButton : true
       }
       return { ...newState };
     });
@@ -81,7 +106,7 @@ export default class Timer extends Component {
    *  This is basic funtion to run timer
    **/
   _runningTimer = () => {
-    const { elapsedTime, isRunning, isTimeout, timeInterval } = this.state;
+    const { elapsedTime, isRunning, isTimeout, timeInterval, saveButton } = this.state;
     console.log("Function Call : _runningTimer()");
     console.log(" - default Value - isRunning : " + isRunning + " isTimeout : " + isTimeout);
 
@@ -99,7 +124,8 @@ export default class Timer extends Component {
     }, 1000);
     return this.setState({
        timeInterval : startInterval,
-       isRunning : true
+       isRunning : true,
+       saveButton : true
     })
 
   }
@@ -139,7 +165,7 @@ export default class Timer extends Component {
   }
 
   _stopTimer = () => {
-    const {isTimeout, isRunning, timeInterval , timeText} = this.state;
+    const {isTimeout, isRunning, timeInterval , timeText, saveButton} = this.state;
     console.log("#Function Call :  _stopTimer");
     console.log (" isRunning : " + isRunning);
     clearInterval(this.state.timeInterval);
@@ -148,6 +174,7 @@ export default class Timer extends Component {
         ...prevState,
         isRunning : false,
         timeInterval : null,
+        saveButton : false
       }
       return { ...newState };
     });
