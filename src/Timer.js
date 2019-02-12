@@ -52,7 +52,7 @@ export default class Timer extends Component {
      const { isRunning, isTimeout, elapsedTime, displayTime, saveButton } = this.state;
     return (
       <View>
-        <Text style = { styles.timerText }>{displayTime} </Text>
+        <Text style = { [styles.timerText , isTimeout ? {color : "red"} : {color : "black"}] }>{displayTime} </Text>
         <View style = { styles.buttonRow }>
           <Button
            icon = {
@@ -210,8 +210,6 @@ const styles = StyleSheet.create({
     },
 
     timerText: {
-      color : '#D3A4B3',
-      //TODO: This is iOS font, i need to add Android edition
       fontFamily : Platform.OS === 'ios' ? 'Courier' : 'monospace',
       fontSize: 150,
       flex : 2,
