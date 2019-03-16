@@ -3,7 +3,7 @@ import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { View, StyleSheet, Text, Platform, Alert } from 'react-native';
 import GlobalVal from '../assets/global';
-
+import * as timeUtil from '../src/Utils/timeUtil';
 
 //select Test type screen - default
 export default class Timer extends Component {
@@ -32,24 +32,27 @@ export default class Timer extends Component {
   }
 
 
-   buttonClickded = () => {
+   _saveButtonClickded = () => {
+    const { elapsedTime, isTimeout } = this.state;
     Alert.alert(
       "Save",
       "Are you sure to save?",
-      [ 
+      [
         {
           text: "Cancel",
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel"
         },
-        { text: "Save", onPress: () => console.log("OK Pressed") }
+        { text: "Save",
+         onPress: ()=> this.props.onPress(this._endTime())
+        }
       ],
       { cancelable: false }
     );
   };
 
    render () {
-     const { isRunning, isTimeout, elapsedTime, displayTime, saveButton } = this.state;
+     const { isRunning, isTimeout, displayTime, saveButton } = this.state;
     return (
       <View>
         <Text style = { [styles.timerText , isTimeout ? {color : "red"} : {color : "black"}] }>{displayTime} </Text>
@@ -69,9 +72,9 @@ export default class Timer extends Component {
           />
            <Button
            icon = { <Icon name = 'save' size={40} color="black"/> }
-            type  = "outline" 
+            type  = "outline"
             disabled = { saveButton }
-            onPress={this.buttonClickded}
+            onPress={this._saveButtonClickded}
           />
         </View>
       </View>
@@ -83,9 +86,8 @@ export default class Timer extends Component {
    *   Upeate state time value to 60 (Temporal) will make Constant variable table and add
    **/
   _initTimer = () => {
-    const { elapsedTime, isTimeout, isRunning, saveButton } = this.state;
+    const { elapsedTime } = this.state;
     console.log("Function Call : _initTimer()");
-    // this._stopTimer();
     this.setState(prevState => {
       const newState = {
         ...prevState,
@@ -93,20 +95,19 @@ export default class Timer extends Component {
         // isRunning  : false,
         elapsedTime : GlobalVal.TEST_TIME, //TODO: GlobalVal.DEFAULT_SEC ,
         isTimeout : false,
-        displayTime : this._timeConverter(GlobalVal.TEST_TIME), // TODO: this._timeConverter(GlobalVal.DEFAULT_SEC)
+        displayTime : timeUtil._timeConverter(GlobalVal.TEST_TIME), // TODO: timeUtil._timeConverter(GlobalVal.DEFAULT_SEC)
         saveButton : true
       }
       return { ...newState };
     });
-    console.log("******* initTime call displayTime? after update state?");
-    console.log("*** Current state value : elapsedTime - " + elapsedTime);
+    console.log("*** Current state value : elapsedTime : " + elapsedTime);
   };
 
   /**
    *  This is basic funtion to run timer
    **/
   _runningTimer = () => {
-    const { elapsedTime, isRunning, isTimeout, timeInterval, saveButton } = this.state;
+    const { isRunning, isTimeout, timeInterval } = this.state;
     console.log("Function Call : _runningTimer()");
     console.log(" - default Value - isRunning : " + isRunning + " isTimeout : " + isTimeout);
 
@@ -134,7 +135,7 @@ export default class Timer extends Component {
    * May or Maynot move into timer function.
    **/
   _updateTime = () => {
-    const {elapsedTime, isTimeout , isRunning } = this.state;
+    const {elapsedTime, isTimeout } = this.state;
     console.log("#Function Call : _updateTime ");
     console.log(" --- current elapsedTime : " + elapsedTime);
     if(elapsedTime == 0) {
@@ -165,7 +166,7 @@ export default class Timer extends Component {
   }
 
   _stopTimer = () => {
-    const {isTimeout, isRunning, timeInterval , timeText, saveButton} = this.state;
+    const { isRunning } = this.state;
     console.log("#Function Call :  _stopTimer");
     console.log (" isRunning : " + isRunning);
     clearInterval(this.state.timeInterval);
@@ -182,22 +183,17 @@ export default class Timer extends Component {
   }
 
   _displayTime = () =>{
-    const { elapsedTime, displayTime } = this.state;
+    const { elapsedTime } = this.state;
     console.log ("#Function Call : _displayTime");
     console.log("DisplayTime : elasedTime - " + elapsedTime);
     return this.setState({
-      displayTime : this._timeConverter(elapsedTime)
+      displayTime : timeUtil._timeConverter(elapsedTime)
    });
-    console.log("displayTime : " + this.displayTime);
   }
 
-  _timeConverter (time) {
-    return this._digitUpdate(Math.floor(time/GlobalVal.BASE_TIME)) + ":" + this._digitUpdate(Math.ceil (time % GlobalVal.BASE_TIME));
-  }
-
-  _digitUpdate(num) {
-    if(num > 9) return num;
-    return '0'+ num;
+  _endTime(){
+    const {elapsedTime, isTimeout} = this.state;
+    return isTimeout ? (GlobalVal.DEFAULT_SEC + elapsedTime) : (GlobalVal.DEFAULT_SEC - elapsedTime);
   }
 }
 //Style sheet
