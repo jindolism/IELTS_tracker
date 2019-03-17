@@ -1,5 +1,5 @@
 import React from 'react';
-import { AsyncStorage, Text, View, FlatList} from 'react-native';
+import { AsyncStorage, Text, View, FlatList } from 'react-native';
 import { Button } from 'react-native-elements';
 import { AppLoading } from "expo";
 import GlobalVal from '../assets/global';
@@ -36,6 +36,7 @@ class scoreList extends React.Component {
                 showsVerticalScrollIndicator={false}
                 renderItem={this._renderItem}
                 keyExtractor={(item) => item.saveTime}
+                ItemSeparatorComponent = {this._renderSeparator}
               />
             </View>
         )
@@ -76,6 +77,19 @@ class scoreList extends React.Component {
         dateTime={item.saveTime}
       />
     );
+
+    _renderSeparator = () => {
+      return (
+        <View
+          style={{
+            height: 1,
+            width: "80%",
+            backgroundColor: "#CED0CE",
+            marginLeft: "20%"
+          }}
+        />
+      );
+    };
 
 }
 export default scoreList;
