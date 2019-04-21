@@ -4,4 +4,6 @@ module.exports = Object.freeze({
   TIMEOUT : 3600,
   TEST_TIME : 15,
   DB_FLAG : "SCORETABLE",
+  DB_NAME : 'test.db',
+  DB_TABLE : 'test'
 });

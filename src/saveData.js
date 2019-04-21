@@ -1,9 +1,9 @@
 import React from 'react';
 import { Button, ButtonGroup, Input, Icon, Text } from 'react-native-elements';
-import { View, AsyncStorage } from 'react-native';
-import GlobalVal from '../assets/global';
+import { View } from 'react-native';
 import { NavigationActions, StackActions } from 'react-navigation';
 import * as timeUtil from '../src/Utils/timeUtil';
+import * as storageUtil from '../src/Utils/storageUtil';
 
 //generatl type screen
 class saveData extends React.Component {
@@ -14,7 +14,7 @@ class saveData extends React.Component {
       examType : 0,
       examSubject : 0,
       correctAnswer : '',
-      curTime : new Date().toLocaleString(),
+      curTime : new Date().toISOString(),
       isEditMode : false,
       scoreInfos : {}
     }
@@ -36,10 +36,9 @@ class saveData extends React.Component {
     const editMode = this.props.navigation.getParam('isEditMode');
     this.setState({ 
       saveTime : duration > 0 ? duration : 0,
-      curTime : new Date().toLocaleString(),
+      curTime : new Date().toISOString(),
       isEditMode : editMode ? editMode : false
     });
-    this._retriveData();
   };
 
   render() {
@@ -80,7 +79,7 @@ class saveData extends React.Component {
         />
         {/* TODO: Need to add max value for input  : MAX : 40 */}
         <Input
-          placeholder={"Correct Answer(optional)"} 
+          placeholder={ examSubject === 0 ? "Correct Answer(optional)" : "N/A"} 
           keyboardType = {"number-pad"}
           maxLength={2}
           leftIcon={
@@ -92,6 +91,7 @@ class saveData extends React.Component {
           }
           onChangeText = {(value) => {this.setState({correctAnswer: value})}}
           returnKeyType={"done"}
+          editable = { examSubject === 0 ? true : false }
         />  
         <Button
           icon = { <Icon name = 'save' size={40} color="black"/> }
@@ -102,16 +102,6 @@ class saveData extends React.Component {
     );
   }
 
-  _retriveData = async() => {
-    try { 
-      const value = await AsyncStorage.getItem(GlobalVal.DB_FLAG);
-      this.setState({scoreInfos : JSON.parse(value)});
-      console.log("retriveData : " +  value);
-    } catch(err){
-      console.log(err);
-    }
-  }
-
 
   _addData = () =>{
     const { examType, examSubject, curTime, saveTime, correctAnswer } = this.state;
@@ -120,6 +110,8 @@ class saveData extends React.Component {
       console.log("subject : " + examSubject);
       console.log("time : " + curTime);
       console.log("Correct Answer: " + correctAnswer); 
+          
+      storageUtil._addData(curTime, examType, examSubject, saveTime, correctAnswer);
       const newData = {
         [curTime] : {
             duration : saveTime,
@@ -137,24 +129,11 @@ class saveData extends React.Component {
           ...newData
         }
       }
-      this._saveStorage(newState.scoreInfos);
+      this._resetNav();
       return {...newState};
     })
   };
 
-  
-
-  _saveStorage  = values => {
-    console.log("## save Item : \n " + values);
-    AsyncStorage.setItem(GlobalVal.DB_FLAG, 
-      JSON.stringify(values), () =>{
-        AsyncStorage.getItem(GlobalVal.DB_FLAG, (err, result) => {
-          console.log("ERROR WHEN LOAD DATA FROM ASYNCSTORAGE : " + err );
-        });
-      });
-      
-    this._resetNav();
-  }
 
   //TODO : move this under general helper for navigation
   //This is the function to reset all stackedNavigation and back to hub

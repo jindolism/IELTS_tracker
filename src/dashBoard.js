@@ -1,6 +1,13 @@
 import React from 'react';	
 import { Button, Icon } from 'react-native-elements';	
 import { View, StyleSheet } from 'react-native';
+import * as storageUtil from '../src/Utils/storageUtil';
+import GlobalVal from '../assets/global';
+
+componentDidMount = () => {
+  this._removeItemValue(GlobalVal.DB_FLAG);
+  storageUtil._createTable();
+};
 
  //select Test type screen - default	
 class dashBoard extends React.Component {	
@@ -61,6 +68,19 @@ class dashBoard extends React.Component {
     </View>	
     )	
   }	
+
+  //to clean up existing AsyncStorage Value
+  async _removeItemValue(key) {
+    try {
+      await AsyncStorage.clear();
+      console.log("\n\nREMOVE AsyncStorage");
+      return true;
+    }
+    catch(exception) {
+      console.log("\n\nFail to REMOVE AsyncStorage : "+ exception);
+      return false;
+    }
+  }
 }	
 
  //Style sheet	
