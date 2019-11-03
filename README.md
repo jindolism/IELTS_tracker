@@ -2,6 +2,6 @@
 
 This is IELTS Practice Score Tracker App
 
-Developer : Tayler Kang, Eunwon Moon
+Developer : Taylor Kang, Eunwon Moon
 
 
